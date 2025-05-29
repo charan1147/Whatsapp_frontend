@@ -9,6 +9,14 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use(
+  (config) => {
+    console.log(`Request to ${config.url}:`, { withCredentials: config.withCredentials }); // Log request details
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -19,18 +27,31 @@ api.interceptors.response.use(
 
 export const me = async () => {
   try {
-    console.log("Sending request to /auth/me..."); // Add logging
+    console.log("Sending request to /auth/me...");
     const res = await api.get("/auth/me");
-    console.log("me response:", res.data); // Add logging
+    console.log("me response:", res.data);
     return { success: res.data.success, user: res.data.user };
   } catch (err) {
-    console.error("me error:", err?.error || err.message); // Enhanced logging
-    console.error("me error details:", err); // Full error object
+    console.error("me error:", err?.error || err.message);
+    console.error("me error details:", err);
     return { success: false, user: null };
   }
 };
 
-// ... (rest of the file unchanged)
+export const getMessages = async (contactId) => {
+  try {
+    console.log(`Fetching messages for contact ${contactId}...`);
+    const res = await api.get(`/chat/messages/${contactId}`);
+    console.log("getMessages response:", res.data);
+    return { success: res.data.success, messages: res.data.messages, message: res.data.message };
+  } catch (err) {
+    console.error("getMessages error:", err?.error || err.message);
+    console.error("getMessages error details:", err);
+    return { success: false, error: err.error || "Failed to fetch messages" };
+  }
+};
+
+// ... (other functions unchanged)
 export const register = async (data) => {
   try {
     const res = await api.post("/auth/register", data);
@@ -43,8 +64,10 @@ export const register = async (data) => {
 export const login = async (data) => {
   try {
     const res = await api.post("/auth/login", data);
+    console.log("login response:", res.data); // Log login response
     return { success: res.data.success, user: res.data.user, message: res.data.message };
   } catch (err) {
+    console.error("login error:", err?.error || err.message);
     return { success: false, error: err.error || "Login failed" };
   }
 };
@@ -64,14 +87,5 @@ export const addContact = async (email) => {
     return { success: res.data.success, user: res.data.user, message: res.data.message };
   } catch (err) {
     return { success: false, error: err.error || "Failed to add contact" };
-  }
-};
-
-export const getMessages = async (contactId) => {
-  try {
-    const res = await api.get(`/chat/messages/${contactId}`);
-    return { success: res.data.success, messages: res.data.messages, message: res.data.message };
-  } catch (err) {
-    return { success: false, error: err.error || "Failed to fetch messages" };
   }
 };

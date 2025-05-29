@@ -14,19 +14,22 @@ export const AuthProvider = ({ children }) => {
     const fetchUser = async () => {
       try {
         const res = await me();
-        console.log("fetchUser response:", res); // Add logging
+        console.log("fetchUser response:", res);
         if (res?.user) {
           setUser(res.user);
           registerSocketUser(res.user.id);
           setIsLoggedOut(false);
+          console.log("User set:", res.user);
         } else {
           setUser(null);
           setIsLoggedOut(false);
+          console.log("No user found, user set to null");
         }
       } catch (error) {
-        console.error("fetchUser error:", error); // Add logging
+        console.error("fetchUser error:", error);
         setUser(null);
         setIsLoggedOut(false);
+        console.log("Error fetching user, user set to null");
       } finally {
         setLoading(false);
       }
