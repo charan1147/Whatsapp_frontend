@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://whatsapp-backend-15.onrender.com/api", // Updated URL
+  baseURL: "https://whatsapp-backend-15.onrender.com/api",
   withCredentials: true,
   headers: {
     "Accept": "application/json",
@@ -17,6 +17,20 @@ api.interceptors.response.use(
   }
 );
 
+export const me = async () => {
+  try {
+    console.log("Sending request to /auth/me..."); // Add logging
+    const res = await api.get("/auth/me");
+    console.log("me response:", res.data); // Add logging
+    return { success: res.data.success, user: res.data.user };
+  } catch (err) {
+    console.error("me error:", err?.error || err.message); // Enhanced logging
+    console.error("me error details:", err); // Full error object
+    return { success: false, user: null };
+  }
+};
+
+// ... (rest of the file unchanged)
 export const register = async (data) => {
   try {
     const res = await api.post("/auth/register", data);
@@ -32,15 +46,6 @@ export const login = async (data) => {
     return { success: res.data.success, user: res.data.user, message: res.data.message };
   } catch (err) {
     return { success: false, error: err.error || "Login failed" };
-  }
-};
-
-export const me = async () => {
-  try {
-    const res = await api.get("/auth/me");
-    return { success: res.data.success, user: res.data.user };
-  } catch (err) {
-    return { success: false, user: null };
   }
 };
 

@@ -12,20 +12,29 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await me();
-      if (res?.user) {
-        setUser(res.user);
-        registerSocketUser(res.user.id);
-        setIsLoggedOut(false); // Reset on successful fetch
-      } else {
+      try {
+        const res = await me();
+        console.log("fetchUser response:", res); // Add logging
+        if (res?.user) {
+          setUser(res.user);
+          registerSocketUser(res.user.id);
+          setIsLoggedOut(false);
+        } else {
+          setUser(null);
+          setIsLoggedOut(false);
+        }
+      } catch (error) {
+        console.error("fetchUser error:", error); // Add logging
         setUser(null);
-        setIsLoggedOut(false); // Reset if no user is found
+        setIsLoggedOut(false);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     fetchUser();
   }, []);
 
+  // ... (rest of the file unchanged)
   const registerUser = async (email, password) => {
     const res = await register({ email, password });
     if (res.success) {
