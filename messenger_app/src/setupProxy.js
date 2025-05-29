@@ -4,7 +4,7 @@ module.exports = function (app) {
   app.use(
     '/api',
     createProxyMiddleware({
-      target: 'https://whatsapp-backend-11.onrender.com',
+      target: 'https://whatsapp-backend-12.onrender.com',
       changeOrigin: true,
       secure: false
     })
