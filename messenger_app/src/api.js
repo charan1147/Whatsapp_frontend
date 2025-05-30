@@ -11,18 +11,13 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    console.log(`Request to ${config.url}:`, { withCredentials: config.withCredentials }); // Log request details
+    console.log(`Request to ${config.url}:`, {
+      withCredentials: config.withCredentials,
+      headers: config.headers,
+    });
     return config;
   },
   (error) => Promise.reject(error)
-);
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("API error:", error?.response?.data || error.message);
-    return Promise.reject(error?.response?.data || { error: "Network error" });
-  }
 );
 
 export const me = async () => {
@@ -64,7 +59,8 @@ export const register = async (data) => {
 export const login = async (data) => {
   try {
     const res = await api.post("/auth/login", data);
-    console.log("login response:", res.data); // Log login response
+    console.log("login response:", res.data);
+    console.log("login headers (Set-Cookie):", res.headers["set-cookie"]); // Log cookie
     return { success: res.data.success, user: res.data.user, message: res.data.message };
   } catch (err) {
     console.error("login error:", err?.error || err.message);
