@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://whatsapp-backend-15.onrender.com/api",
+  baseURL: "https://whatsapp-backend-16.onrender.com/api",
   withCredentials: true,
   headers: {
     "Accept": "application/json",

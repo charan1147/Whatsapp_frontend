@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const SOCKET_URL = "https://whatsapp-backend-15.onrender.com"; 
+const SOCKET_URL = "https://whatsapp-backend-16.onrender.com"; 
 const socket = io(SOCKET_URL, { withCredentials: true });
 
 socket.on("connect", () => {
