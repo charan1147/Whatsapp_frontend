@@ -28,6 +28,10 @@ const ContactList = ({ onSelectContact }) => {
     }
   };
 
+  if (!user) {
+    return <p>Please log in to view contacts.</p>;
+  }
+
   return (
     <div>
       <h3>Your Contacts</h3>

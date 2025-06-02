@@ -10,38 +10,34 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
 
- useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      const res = await me();
-      console.log("fetchUser response:", res);
-      if (res?.user) {
-        setUser(res.user);
-        registerSocketUser(res.user.id);
-        setIsLoggedOut(false);
-        console.log("User set:", res.user);
-      } else {
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await me();
+        if (res?.user) {
+          setUser(res.user);
+          socket.connect();
+          registerSocketUser(res.user.id);
+          setIsLoggedOut(false);
+        } else {
+          setUser(null);
+          setIsLoggedOut(false);
+        }
+      } catch (error) {
         setUser(null);
         setIsLoggedOut(false);
-        console.log("No user found, user set to null");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("fetchUser error:", error);
-      setUser(null);
-      setIsLoggedOut(false);
-      console.log("Error fetching user, user set to null");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchUser();
-}, []);
-
-  // ... (rest of the file unchanged)
+    };
+    fetchUser();
+  }, []);
+  
   const registerUser = async (email, password) => {
     const res = await register({ email, password });
     if (res.success) {
       setUser(res.user);
+      socket.connect();
       registerSocketUser(res.user.id);
       setIsLoggedOut(false);
     }
@@ -52,6 +48,7 @@ export const AuthProvider = ({ children }) => {
     const res = await login({ email, password });
     if (res.success) {
       setUser(res.user);
+      socket.connect();
       registerSocketUser(res.user.id);
       setIsLoggedOut(false);
     }

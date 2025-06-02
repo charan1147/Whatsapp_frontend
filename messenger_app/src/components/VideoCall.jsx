@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Import useAuth
+import { useAuth } from '../context/AuthContext';
 import socket from '../socket.js';
 
 function VideoCall() {
   const { contactId } = useParams();
   const navigate = useNavigate();
-  const { isLoggedOut } = useAuth(); // Access isLoggedOut state
+  const { isLoggedOut } = useAuth();
   const localVideoRef = useRef();
   const remoteVideoRef = useRef();
   const [peerConnection, setPeerConnection] = useState(null);
@@ -14,40 +14,37 @@ function VideoCall() {
   const [localStream, setLocalStream] = useState(null);
 
   const endCall = () => {
-    // Stop all tracks in the local stream
     if (localStream) {
       localStream.getTracks().forEach(track => track.stop());
       setLocalStream(null);
     }
-
-    // Close the peer connection
     if (peerConnection) {
       peerConnection.close();
       setPeerConnection(null);
     }
-
-    // Clean up socket listeners
     socket.off('answer');
     socket.off('iceCandidate');
   };
 
   const handleEndCall = () => {
     endCall();
-    navigate('/chat'); // Redirect to chat page
+    navigate('/chat');
   };
 
   useEffect(() => {
-    // If user logs out, end the call and redirect to home
     if (isLoggedOut) {
       endCall();
-      navigate('/'); // Redirect to home page after logout
+      navigate('/');
     }
   }, [isLoggedOut, navigate]);
 
   useEffect(() => {
     const startCall = async () => {
-      // Skip starting the call if user is logged out
       if (isLoggedOut) return;
+      if (!socket.connected) {
+        setError("Socket not connected. Please try again.");
+        return;
+      }
 
       try {
         const pc = new RTCPeerConnection();
@@ -73,11 +70,19 @@ function VideoCall() {
         socket.emit('offer', { offer, to: contactId });
 
         socket.on('answer', async (answer) => {
-          await pc.setRemoteDescription(answer);
+          try {
+            await pc.setRemoteDescription(answer);
+          } catch (err) {
+            setError("Failed to set remote description.");
+          }
         });
 
         socket.on('iceCandidate', async (candidate) => {
-          await pc.addIceCandidate(candidate);
+          try {
+            await pc.addIceCandidate(candidate);
+          } catch (err) {
+            setError("Failed to add ICE candidate.");
+          }
         });
       } catch (err) {
         console.error('WebRTC error:', err);
@@ -90,7 +95,7 @@ function VideoCall() {
     return () => {
       endCall();
     };
-  }, [contactId, isLoggedOut]); // Add isLoggedOut to dependencies
+  }, [contactId, isLoggedOut]);
 
   return (
     <div>

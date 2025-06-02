@@ -11,30 +11,30 @@ import Navbar from "./components/Navbar";
 const App = () => {
   const { user, loading, isLoggedOut } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation(); // Get the current route
+  const location = useLocation();
 
   useEffect(() => {
-    // Skip redirection while loading (initial fetch of user)
     if (loading) return;
 
-    // Define protected routes
     const protectedRoutes = ["/chat", "/video-call"];
     const isProtectedRoute = protectedRoutes.some(route => 
       location.pathname === route || location.pathname.startsWith("/video-call/")
     );
 
-    // Redirect to home if user is not authenticated and on a protected route
     if (!user && isProtectedRoute) {
       navigate("/");
     }
 
-    // Redirect to home after logout, but only if not already on a public route
     const publicRoutes = ["/", "/login", "/register"];
     const isPublicRoute = publicRoutes.includes(location.pathname);
     if (isLoggedOut && !isPublicRoute) {
       navigate("/");
     }
   }, [user, loading, isLoggedOut, location, navigate]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>

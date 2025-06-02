@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://whatsapp-backend-17.onrender.com/api",
+  baseURL: "https://whatsapp-backend-19.onrender.com/api",
   withCredentials: true,
   headers: {
     "Accept": "application/json",
@@ -11,13 +11,18 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    console.log(`Request to ${config.url}:`, {
-      withCredentials: config.withCredentials,
-      headers: config.headers,
-    });
+    console.log(`Request to ${config.url}:`, { withCredentials: config.withCredentials });
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API error:", error?.response?.data || error.message);
+    return Promise.reject(error?.response?.data || { error: "Network error" });
+  }
 );
 
 export const me = async () => {
@@ -46,7 +51,6 @@ export const getMessages = async (contactId) => {
   }
 };
 
-// ... (other functions unchanged)
 export const register = async (data) => {
   try {
     const res = await api.post("/auth/register", data);
@@ -60,7 +64,7 @@ export const login = async (data) => {
   try {
     const res = await api.post("/auth/login", data);
     console.log("login response:", res.data);
-    console.log("login headers (Set-Cookie):", res.headers["set-cookie"]); // Log cookie
+    console.log("login headers (Set-Cookie):", res.headers["set-cookie"]);
     return { success: res.data.success, user: res.data.user, message: res.data.message };
   } catch (err) {
     console.error("login error:", err?.error || err.message);
@@ -79,9 +83,13 @@ export const logout = async () => {
 
 export const addContact = async (email) => {
   try {
+    console.log(`Adding contact with email ${email}...`);
     const res = await api.post("/auth/add-contact", { email });
+    console.log("addContact response:", res.data);
     return { success: res.data.success, user: res.data.user, message: res.data.message };
   } catch (err) {
+    console.error("addContact error:", err?.error || err.message);
+    console.error("addContact error details:", err);
     return { success: false, error: err.error || "Failed to add contact" };
   }
 };

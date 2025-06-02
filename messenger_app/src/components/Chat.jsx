@@ -38,6 +38,10 @@ const Chat = ({ selectedContact }) => {
     }
   };
 
+  if (!user) {
+    return <p>Please log in to view chats.</p>;
+  }
+
   return (
     <div>
       <h3>
@@ -46,9 +50,9 @@ const Chat = ({ selectedContact }) => {
       {(error || sendError) && <p style={{ color: "red" }}>{error || sendError}</p>}
       <div style={{ border: "1px solid #ccc", height: "300px", overflowY: "scroll", padding: "0.5rem" }}>
         {messages?.length > 0 ? (
-          messages.map((msg, index) => (
-            <div key={msg._id || index}>
-              <strong>{msg.sender === user?.id ? "You" : selectedContact?.email}</strong>: {msg.content}
+          messages.map((msg) => (
+            <div key={msg._id}>
+              <strong>{msg.sender === user.id ? "You" : selectedContact?.email}</strong>: {msg.content}
               <span style={{ color: "#888", fontSize: "0.8em", marginLeft: "10px" }}>
                 {new Date(msg.timestamp).toLocaleTimeString()}
               </span>
